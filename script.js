@@ -1,0 +1,371 @@
+const WHATSAPP_NUMERO = "5584921713033";
+
+  // ---------- CARDÁPIO REAL (Copo da Felicidade + Açaí no Pote) ----------
+  const builders = {
+    copo: {
+      titulo: "Copo da Felicidade",
+      tamanhos: [
+        { id:"350", label:"350ml", preco:15.00 },
+        { id:"470", label:"470ml", preco:17.00 },
+      ],
+      baseMax: 2,
+      base: ["Açaí","Creme de Ninho","Creme de Cupuaçu","Creme de Amendoim","Creme de Tapioca","Creme de Ovomaltine"],
+      recheioMax: 3,
+      recheioExtra: 0, // sem opção de recheio extra pago no Copo
+      recheio: ["Leite em pó","Kiwi","Chocopower","Fini","Canudo Wafer","Bombom","Jujuba","Farinha Láctea","Banana","Kitkat","Abacaxi","Doce de Leite","Cob. de Morango","Cob. de Chocolate","Ovomaltine","Uva","Nutella","Morango","Marshmallow","Leite Condensado","Castanha","Granola","Gotas","Coco","Confete","Chocoball","Bis","Oreo"],
+      cobertura: ["Leite Condensado","Nutella","Doce de Leite","Cob. de Morango","Cob. de Chocolate","Cob. Fini Beijos"],
+    },
+    pote: {
+      titulo: "Açaí no Pote",
+      tamanhos: [
+        { id:"350", label:"350ml", preco:15.00 },
+        { id:"500", label:"500ml", preco:18.00 },
+        { id:"1000", label:"1 Litro", preco:31.00 },
+      ],
+      baseMax: 2,
+      base: ["Açaí","Creme de Ninho","Creme de Tapioca","Creme de Cupuaçu","Creme de Amendoim","Creme de Ovomaltine"],
+      recheioMax: 5,
+      recheioExtra: 2.00, // cada recheio além dos 5 primeiros custa R$2,00
+      recheio: ["Leite em pó","Kiwi","Chocopower","Farinha Láctea","Banana","Jujuba","Ovomaltine","Uva","Kitkat","Castanha","Abacaxi","Nutella","Granola","Morango","Doce de Leite","Paçoca","Gotas","Marshmallow","Coco","Confete","Leite Condensado","Chocoball","Bis","Cob. de Morango","Amendoim","Oreo","Cob. de Chocolate"],
+      cobertura: null, // no Pote a cobertura já entra na lista de recheio
+    },
+  };
+
+  const cardapio = {
+    combos: [
+      { id:"comboCasal", nome:"Combo Casal", desc:"2x 500ml + 2 adicionais à escolha.", preco:30.00, emoji:"💜" },
+      { id:"comboFamilia", nome:"Combo Família", desc:"1L + 4 adicionais à escolha.", preco:35.00, emoji:"👨‍👩‍👧" },
+    ],
+  };
+
+  let carrinho = {};
+  let tamanhoSelecionado = {};
+
+  function fmt(v){ return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
+  function findItem(id){ for(const c in cardapio){ const f = cardapio[c].find(i=>i.id===id); if(f) return f; } }
+
+  function renderCardapio(){
+    // Combos continuam como lista simples
+    const container = document.getElementById('list-combos');
+    container.innerHTML = cardapio.combos.map(item => `
+      <div class="item-row" onclick="addItem('${item.id}')">
+        <div class="item-photo">${item.emoji}</div>
+        <div class="item-body">
+          <h3>${item.nome}</h3>
+          ${item.desc ? `<p>${item.desc}</p>` : ''}
+          <div class="item-bottom">
+            <span class="item-price">${fmt(item.preco)}</span>
+            <span id="ctrl-${item.id}">
+              <button class="add-btn" id="btn-${item.id}" onclick="event.stopPropagation(); addItem('${item.id}')">+</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    renderBuilder('copo');
+    renderBuilder('pote');
+  }
+
+  // ---------- BUILDER: monte seu açaí (Copo / Pote) em 2 etapas ----------
+  function renderBuilder(bid){
+    const cfg = builders[bid];
+    const el = document.getElementById('builder-' + bid);
+    el.innerHTML = `
+      <div class="builder-step step-tamanho">
+        <div class="build-block">
+          <h3>Escolha o tamanho</h3>
+          <div class="option-row">
+            ${cfg.tamanhos.map(t => `
+              <div class="size-card" onclick="selectTamanho('${bid}','${t.id}')">
+                <span>${t.label}</span><b>${fmt(t.preco)}</b>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="builder-step step-adicionais" style="display:none;">
+        <div class="step-tam-label" id="tamLabel-${bid}"></div>
+
+        <div class="build-block">
+          <h3>Base <small>escolha até ${cfg.baseMax}</small></h3>
+          <div class="option-grid">
+            ${cfg.base.map(b => `
+              <label class="check-opt">
+                <input type="checkbox" data-group="${bid}-base" value="${b}" onchange="onCheckLimit(this,'${bid}','base',${cfg.baseMax})">
+                <span>${b}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="build-block">
+          <h3>Recheio <small>escolha até ${cfg.recheioMax}${cfg.recheioExtra ? ' · extras a ' + fmt(cfg.recheioExtra) + ' cada' : ''}</small></h3>
+          <div class="option-grid">
+            ${cfg.recheio.map(r => `
+              <label class="check-opt">
+                <input type="checkbox" data-group="${bid}-recheio" value="${r}" onchange="onRecheioChange('${bid}')">
+                <span>${r}</span>
+              </label>
+            `).join('')}
+          </div>
+          <div class="build-summary" id="resumo-${bid}"></div>
+        </div>
+
+        ${cfg.cobertura ? `
+          <div class="build-block">
+            <h3>Cobertura <small>escolha 1</small></h3>
+            <div class="option-grid">
+              ${cfg.cobertura.map(c => `
+                <label class="radio-opt small" style="flex:1 1 45%;">
+                  <input type="radio" name="${bid}-cob" value="${c}">
+                  <span>${c}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <button class="add-build-btn" onclick="addBuilderToCart('${bid}')">Adicionar ao carrinho</button>
+        <button class="add-build-btn voltar-tam-btn" onclick="voltarTamanho('${bid}')">← Trocar tamanho</button>
+      </div>
+    `;
+    updateResumo(bid);
+  }
+
+  // etapa 1 -> etapa 2: usuário escolheu o tamanho
+  function selectTamanho(bid, tamId){
+    const cfg = builders[bid];
+    const tam = cfg.tamanhos.find(t => t.id === tamId);
+    tamanhoSelecionado[bid] = tam;
+
+    const root = document.getElementById('builder-' + bid);
+    root.querySelector('.step-tamanho').style.display = 'none';
+    root.querySelector('.step-adicionais').style.display = 'block';
+    document.getElementById('tamLabel-' + bid).innerHTML =
+      `${cfg.titulo} · ${tam.label} — ${fmt(tam.preco)} <button class="change-tam" onclick="voltarTamanho('${bid}')">trocar</button>`;
+
+    document.getElementById(bid).scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  // volta da etapa 2 pra etapa 1
+  function voltarTamanho(bid){
+    const root = document.getElementById('builder-' + bid);
+    root.querySelector('.step-adicionais').style.display = 'none';
+    root.querySelector('.step-tamanho').style.display = 'block';
+  }
+
+  // trava seleção de base no máximo permitido
+  function onCheckLimit(input, bid, group, max){
+    const checked = document.querySelectorAll(`[data-group="${bid}-${group}"]:checked`);
+    if(checked.length > max){
+      input.checked = false;
+    }
+  }
+
+  // recheio: trava se não tiver preço de extra; senão só atualiza resumo/preço
+  function onRecheioChange(bid){
+    const cfg = builders[bid];
+    if(!cfg.recheioExtra){
+      onCheckLimit(event.target, bid, 'recheio', cfg.recheioMax);
+    }
+    updateResumo(bid);
+  }
+
+  function updateResumo(bid){
+    const cfg = builders[bid];
+    const checked = document.querySelectorAll(`[data-group="${bid}-recheio"]:checked`);
+    const total = checked.length;
+    const extra = cfg.recheioExtra ? Math.max(0, total - cfg.recheioMax) : 0;
+    const el = document.getElementById('resumo-' + bid);
+    if(!el) return;
+    if(extra > 0){
+      el.innerHTML = `${total} recheios selecionados — <b>${extra} extra(s): +${fmt(extra * cfg.recheioExtra)}</b>`;
+    } else {
+      el.innerHTML = `${total}/${cfg.recheioMax} recheios selecionados`;
+    }
+  }
+
+  function addBuilderToCart(bid){
+    const cfg = builders[bid];
+    const tam = tamanhoSelecionado[bid];
+    if(!tam){ alert('Escolha um tamanho'); return; }
+
+    const base = [...document.querySelectorAll(`[data-group="${bid}-base"]:checked`)].map(i => i.value);
+    const recheio = [...document.querySelectorAll(`[data-group="${bid}-recheio"]:checked`)].map(i => i.value);
+    const cobEl = cfg.cobertura ? document.querySelector(`input[name="${bid}-cob"]:checked`) : null;
+
+    if(cfg.cobertura && !cobEl){ alert('Escolha uma cobertura'); return; }
+
+    const extraCount = cfg.recheioExtra ? Math.max(0, recheio.length - cfg.recheioMax) : 0;
+    const preco = tam.preco + (extraCount * (cfg.recheioExtra || 0));
+
+    const partes = [];
+    if(base.length) partes.push('Base: ' + base.join(', '));
+    if(recheio.length) partes.push('Recheio: ' + recheio.join(', '));
+    if(cobEl) partes.push('Cobertura: ' + cobEl.value);
+
+    const uid = bid + '-' + Date.now();
+    carrinho[uid] = {
+      item: {
+        nome: `${cfg.titulo} ${tam.label}`,
+        preco: preco,
+        emoji: '🍇',
+        desc: partes.join(' · '),
+      },
+      qtd: 1,
+      custom: true,
+      descLonga: partes,
+    };
+
+    atualizarTudo();
+    openAddedModal(uid);
+
+    // reseta o builder pro próximo pedido (volta pra etapa 1)
+    delete tamanhoSelecionado[bid];
+    renderBuilder(bid);
+  }
+
+  // ---------- ITENS SIMPLES (combos) ----------
+
+  function addItem(id){
+    const item = findItem(id);
+    if(!carrinho[id]) carrinho[id] = { item, qtd:0 };
+    carrinho[id].qtd++;
+    refreshRowControl(id);
+    atualizarTudo();
+    openAddedModal(id);
+  }
+  function mudarQtdRow(id, delta, ev){
+    ev.stopPropagation();
+    if(!carrinho[id]) return;
+    carrinho[id].qtd += delta;
+    if(carrinho[id].qtd <= 0) delete carrinho[id];
+    refreshRowControl(id);
+    atualizarTudo();
+  }
+  function refreshRowControl(id){
+    const ctrl = document.getElementById('ctrl-' + id);
+    if(!ctrl) return;
+    if(carrinho[id] && carrinho[id].qtd > 0){
+      ctrl.innerHTML = `
+        <span style="display:flex; align-items:center; gap:8px;">
+          <button class="add-btn filled" onclick="mudarQtdRow('${id}', -1, event)">−</button>
+          <span class="qty-tag">${carrinho[id].qtd}</span>
+          <button class="add-btn filled" onclick="mudarQtdRow('${id}', 1, event)">+</button>
+        </span>
+      `;
+    } else {
+      ctrl.innerHTML = `<button class="add-btn" onclick="event.stopPropagation(); addItem('${id}')">+</button>`;
+    }
+  }
+
+  function mudarQtd(id, delta){
+    if(!carrinho[id]) return;
+    carrinho[id].qtd += delta;
+    if(carrinho[id].qtd <= 0) delete carrinho[id];
+    refreshRowControl(id);
+    atualizarTudo();
+  }
+
+  function atualizarTudo(){ renderCarrinho(); renderFab(); }
+  function totalCarrinho(){ return Object.values(carrinho).reduce((s,l)=> s + l.item.preco*l.qtd, 0); }
+  function qtdCarrinho(){ return Object.values(carrinho).reduce((s,l)=> s + l.qtd, 0); }
+
+  function renderFab(){
+    const qtd = qtdCarrinho();
+    document.getElementById('cartCount').textContent = qtd;
+    document.getElementById('cartFab').classList.toggle('show', qtd > 0);
+  }
+
+  function renderCarrinho(){
+    const body = document.getElementById('drawerBody');
+    const linhas = Object.entries(carrinho);
+    if(linhas.length === 0){
+      body.innerHTML = `<div class="empty-cart"><div class="emoji">🍇</div><p>Seu carrinho tá vazio.<br>Bora montar um açaí?</p></div>`;
+    } else {
+      body.innerHTML = linhas.map(([id, l])=>`
+        <div class="cart-line">
+          <div class="info">
+            <h4>${l.item.emoji} ${l.item.nome}</h4>
+            <div class="unit">${fmt(l.item.preco)} cada</div>
+          </div>
+          <div class="qty-control">
+            <button onclick="mudarQtd('${id}', -1)">−</button>
+            <span>${l.qtd}</span>
+            <button onclick="mudarQtd('${id}', 1)">+</button>
+          </div>
+          <div class="line-total">${fmt(l.item.preco * l.qtd)}</div>
+        </div>
+      `).join('');
+    }
+    const total = totalCarrinho();
+    document.getElementById('sumSubtotal').textContent = fmt(total);
+    document.getElementById('sumTotal').textContent = fmt(total);
+    document.getElementById('checkoutBtn').disabled = linhas.length === 0;
+  }
+
+  function openDrawer(){ document.getElementById('drawer').classList.add('show'); document.getElementById('overlay').classList.add('show'); }
+  function closeDrawer(){ document.getElementById('drawer').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }
+
+  // ---------- MODAL "ITEM ADICIONADO" ----------
+  let addedModalId = null;
+
+  function openAddedModal(id){
+    addedModalId = id;
+    const linha = carrinho[id];
+    if(!linha) return;
+    document.getElementById('addedTitle').textContent = `${linha.item.nome} adicionado ao carrinho!`;
+    document.getElementById('addedQtd').textContent = linha.qtd;
+    document.getElementById('addedModal').classList.add('show');
+    document.getElementById('addedOverlay').classList.add('show');
+  }
+
+  function closeAddedModal(){
+    document.getElementById('addedModal').classList.remove('show');
+    document.getElementById('addedOverlay').classList.remove('show');
+    addedModalId = null;
+  }
+
+  function mudarQtdModal(delta){
+    if(!addedModalId || !carrinho[addedModalId]) return;
+    carrinho[addedModalId].qtd += delta;
+    if(carrinho[addedModalId].qtd <= 0){
+      delete carrinho[addedModalId];
+      closeAddedModal();
+      atualizarTudo();
+      refreshRowControl(addedModalId);
+      return;
+    }
+    document.getElementById('addedQtd').textContent = carrinho[addedModalId].qtd;
+    refreshRowControl(addedModalId);
+    atualizarTudo();
+  }
+
+  function irParaCarrinho(){
+    closeAddedModal();
+    openDrawer();
+  }
+
+  function finalizarPedido(){
+    const linhas = Object.values(carrinho);
+    if(linhas.length === 0) return;
+    let msg = "Oi! Vim pelo site e quero fazer um pedido 🍇\n\n";
+    linhas.forEach(l=>{ msg += `• ${l.qtd}x ${l.item.nome} — ${fmt(l.item.preco * l.qtd)}\n`; });
+    msg += `\nTotal: ${fmt(totalCarrinho())}\n\nMeu endereço: `;
+    window.open(`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  function toggleBairros(){ document.getElementById('bairrosList').classList.toggle('show'); }
+
+  document.querySelectorAll('.cat-pill').forEach(pill=>{
+    pill.addEventListener('click', ()=>{
+      document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+      pill.classList.add('active');
+      document.getElementById(pill.dataset.target).scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  renderCardapio();
+  renderFab();

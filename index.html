@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Click Açaí | Peça já</title>
+<link rel="icon" type="image/jpeg" href="img/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page">
+
+<div class="topbar">
+  <div class="icon-btn">←</div>
+  <div class="store-title"><img src="img/logo.jpg" alt="Click Açaí" class="topbar-logo">Click Açaí</div>
+  <div class="icon-btn">📞</div>
+</div>
+
+<div class="banner"><san class="banner-tag"></san></div> 
+
+<div class="store-card">
+  <div class="store-logo"><img src="img/logo.jpg" alt="Click Açaí"></div>
+  <div class="store-info">
+    <h1>Click Açaí</h1>
+    <div class="store-meta">
+      <b>⭐ 5.0</b><span class="dot-sep"></span>
+      <span>Zona Sul de Natal</span><span class="dot-sep"></span>
+      <span>via WhatsApp</span>
+    </div>
+  </div>
+</div>
+
+<div class="strip">
+  <span class="strip-chip">🕒 18h–22h</span>
+  <span class="strip-chip" onclick="toggleBairros()" style="cursor:pointer">📍 Área de entrega ▾</span>
+  <span class="strip-chip">📞 (84) 92171-3033</span>
+</div>
+<div class="bairros-list" id="bairrosList">
+  <span class="bairro-chip">Capim Macio</span>
+  <span class="bairro-chip">Ponta Negra</span>
+  <span class="bairro-chip">Neópolis</span>
+  <span class="bairro-chip">Áirton Sena</span>
+  <span class="bairro-chip">Abel Cabral</span>
+</div>
+
+<nav class="cats" id="catNav">
+  <div class="cat-pill active" data-target="copo">Copo da Felicidade</div>
+  <div class="cat-pill" data-target="pote">Açaí no Pote</div>
+  <div class="cat-pill" data-target="combos">Combos</div>
+</nav>
+
+<main>
+  <section class="category" id="copo">
+    <div class="cat-title">Copo da Felicidade</div>
+    <div class="cat-desc">Monte do seu jeito</div>
+    <div class="builder" id="builder-copo"></div>
+  </section>
+
+  <section class="category" id="pote">
+    <div class="cat-title">Açaí no Pote</div>
+    <div class="cat-desc">Monte do seu jeito</div>
+    <div class="builder" id="builder-pote"></div>
+  </section>
+
+  <section class="category" id="combos">
+    <div class="cat-title">Combos</div>
+    <div class="cat-desc">Já vem com acompanhamentos inclusos</div>
+    <div id="list-combos"></div>
+  </section>
+</main>
+
+<footer>
+  Entregamos em Capim Macio, Ponta Negra, Neópolis, Áirton Sena e Abel Cabral<br>
+  feito com 💜 pela Click Açaí
+</footer>
+
+</div>
+
+<button class="cart-fab" id="cartFab" onclick="openDrawer()">
+  🛍️
+  <span class="badge" id="cartCount">0</span>
+</button>
+
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-head">
+    <h2>Seu carrinho</h2>
+    <button class="close-drawer" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot">
+    <div class="sum-row"><span>Subtotal</span><span id="sumSubtotal">R$ 0,00</span></div>
+    <div class="sum-row total"><span>Total</span><span id="sumTotal">R$ 0,00</span></div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="finalizarPedido()" disabled>Finalizar pedido no WhatsApp</button>
+    <p class="checkout-hint">Entrega e forma de pagamento combinadas por lá 😉</p>
+  </div>
+</div>
+
+<div class="overlay" id="addedOverlay" onclick="closeAddedModal()"></div>
+<div class="added-modal" id="addedModal">
+  <div class="added-emoji">🍇</div>
+  <h3 id="addedTitle">Item adicionado ao carrinho!</h3>
+
+  <div class="added-qty-row">
+    <span>Quantidade</span>
+    <div class="qty-control">
+      <button onclick="mudarQtdModal(-1)">−</button>
+      <span id="addedQtd">1</span>
+      <button onclick="mudarQtdModal(1)">+</button>
+    </div>
+  </div>
+
+  <button class="checkout-btn" onclick="irParaCarrinho()">Avançar para o carrinho</button>
+  <button class="checkout-btn outline-btn" onclick="closeAddedModal()">Continuar comprando</button>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
+
+
