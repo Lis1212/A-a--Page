@@ -5,8 +5,8 @@ const WHATSAPP_NUMERO = "5584921713033";
     copo: {
       titulo: "Copo da Felicidade",
       tamanhos: [
-        { id:"350", label:"350ml", preco:15.00 },
-        { id:"470", label:"470ml", preco:17.00 },
+        { id:"350", label:"350ml", preco:15.00, foto:"img/Copo350.jpg" },
+        { id:"470", label:"470ml", preco:17.00, foto:null },
       ],
       baseMax: 2,
       base: ["Açaí","Creme de Ninho","Creme de Cupuaçu","Creme de Amendoim","Creme de Tapioca","Creme de Ovomaltine"],
@@ -18,9 +18,9 @@ const WHATSAPP_NUMERO = "5584921713033";
     pote: {
       titulo: "Açaí no Pote",
       tamanhos: [
-        { id:"350", label:"350ml", preco:15.00 },
-        { id:"500", label:"500ml", preco:18.00 },
-        { id:"1000", label:"1 Litro", preco:31.00 },
+        { id:"350", label:"350ml", preco:15.00, foto:"img/Pote350.jpg" },
+        { id:"500", label:"500ml", preco:18.00, foto:"img/Pote500.jpg" },
+        { id:"1000", label:"1 Litro", preco:31.00, foto:"img/Pote1000.jpg" },
       ],
       baseMax: 2,
       base: ["Açaí","Creme de Ninho","Creme de Tapioca","Creme de Cupuaçu","Creme de Amendoim","Creme de Ovomaltine"],
@@ -33,13 +33,14 @@ const WHATSAPP_NUMERO = "5584921713033";
 
   const cardapio = {
     combos: [
-      { id:"comboCasal", nome:"Combo Casal", desc:"2x 500ml + 2 adicionais à escolha.", preco:30.00, emoji:"💜" },
-      { id:"comboFamilia", nome:"Combo Família", desc:"1L + 4 adicionais à escolha.", preco:35.00, emoji:"👨‍👩‍👧" },
+      { id:"comboCasal", nome:"Combo Casal", desc:"2x 500ml + 2 adicionais à escolha.", preco:30.00, emoji:"💜", foto:null },
+      { id:"comboFamilia", nome:"Combo Família", desc:"1L + 4 adicionais à escolha.", preco:35.00, emoji:"👨‍👩‍👧", foto:null },
     ],
   };
 
   let carrinho = {};
   let tamanhoSelecionado = {};
+  const FRETE = 8.00;
 
   function fmt(v){ return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
   function findItem(id){ for(const c in cardapio){ const f = cardapio[c].find(i=>i.id===id); if(f) return f; } }
@@ -49,7 +50,9 @@ const WHATSAPP_NUMERO = "5584921713033";
     const container = document.getElementById('list-combos');
     container.innerHTML = cardapio.combos.map(item => `
       <div class="item-row" onclick="addItem('${item.id}')">
-        <div class="item-photo">${item.emoji}</div>
+        <div class="item-photo">
+          ${item.foto ? `<img src="${item.foto}" alt="${item.nome}">` : item.emoji}
+        </div>
         <div class="item-body">
           <h3>${item.nome}</h3>
           ${item.desc ? `<p>${item.desc}</p>` : ''}
@@ -75,10 +78,18 @@ const WHATSAPP_NUMERO = "5584921713033";
       <div class="builder-step step-tamanho">
         <div class="build-block">
           <h3>Escolha o tamanho</h3>
-          <div class="option-row">
+          <div class="size-grid">
             ${cfg.tamanhos.map(t => `
-              <div class="size-card" onclick="selectTamanho('${bid}','${t.id}')">
-                <span>${t.label}</span><b>${fmt(t.preco)}</b>
+              <div class="size-photo-card" onclick="selectTamanho('${bid}','${t.id}')">
+                <div class="size-photo">
+                  ${t.foto
+                    ? `<img src="${t.foto}" alt="${cfg.titulo} ${t.label}">`
+                    : `<span class="photo-placeholder">📷<br>Foto em breve</span>`
+                  }
+                </div>
+                <div class="size-info">
+                  <span>${t.label}</span><b>${fmt(t.preco)}</b>
+                </div>
               </div>
             `).join('')}
           </div>
@@ -290,6 +301,7 @@ const WHATSAPP_NUMERO = "5584921713033";
           <div class="info">
             <h4>${l.item.emoji} ${l.item.nome}</h4>
             <div class="unit">${fmt(l.item.preco)} cada</div>
+            ${l.item.desc ? `<div class="unit" style="margin-top:3px;">${l.item.desc}</div>` : ''}
           </div>
           <div class="qty-control">
             <button onclick="mudarQtd('${id}', -1)">−</button>
@@ -300,10 +312,22 @@ const WHATSAPP_NUMERO = "5584921713033";
         </div>
       `).join('');
     }
-    const total = totalCarrinho();
-    document.getElementById('sumSubtotal').textContent = fmt(total);
+    const subtotal = totalCarrinho();
+    const total = linhas.length ? subtotal + FRETE : subtotal;
+    document.getElementById('sumSubtotal').textContent = fmt(subtotal);
+    document.getElementById('sumFrete').textContent = linhas.length ? fmt(FRETE) : fmt(0);
     document.getElementById('sumTotal').textContent = fmt(total);
-    document.getElementById('checkoutBtn').disabled = linhas.length === 0;
+    atualizarCheckoutBtn();
+  }
+
+  function onEnderecoChange(){
+    atualizarCheckoutBtn();
+  }
+
+  function atualizarCheckoutBtn(){
+    const linhas = Object.keys(carrinho).length;
+    const endereco = document.getElementById('enderecoInput').value.trim();
+    document.getElementById('checkoutBtn').disabled = linhas === 0 || endereco === '';
   }
 
   function openDrawer(){ document.getElementById('drawer').classList.add('show'); document.getElementById('overlay').classList.add('show'); }
@@ -351,9 +375,20 @@ const WHATSAPP_NUMERO = "5584921713033";
   function finalizarPedido(){
     const linhas = Object.values(carrinho);
     if(linhas.length === 0) return;
+    const endereco = document.getElementById('enderecoInput').value.trim();
+    if(!endereco){ alert('Preencha o endereço de entrega'); return; }
+
     let msg = "Oi! Vim pelo site e quero fazer um pedido 🍇\n\n";
-    linhas.forEach(l=>{ msg += `• ${l.qtd}x ${l.item.nome} — ${fmt(l.item.preco * l.qtd)}\n`; });
-    msg += `\nTotal: ${fmt(totalCarrinho())}\n\nMeu endereço: `;
+    linhas.forEach(l=>{
+      msg += `• ${l.qtd}x ${l.item.nome} — ${fmt(l.item.preco * l.qtd)}\n`;
+      if(l.item.desc){ msg += `   ${l.item.desc}\n`; }
+    });
+    const subtotal = totalCarrinho();
+    const total = subtotal + FRETE;
+    msg += `\nSubtotal: ${fmt(subtotal)}`;
+    msg += `\nTaxa de entrega: ${fmt(FRETE)}`;
+    msg += `\nTotal: ${fmt(total)}`;
+    msg += `\n\nMeu endereço: ${endereco}`;
     window.open(`https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`, '_blank');
   }
 

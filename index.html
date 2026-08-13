@@ -19,17 +19,18 @@
   <div class="icon-btn">📞</div>
 </div>
 
-<div class="banner"><san class="banner-tag"></san></div> 
+<div class="banner"><span class="banner-tag">🍇 Açaí fresquinho todo dia</span></div>
 
 <div class="store-card">
   <div class="store-logo"><img src="img/logo.jpg" alt="Click Açaí"></div>
   <div class="store-info">
     <h1>Click Açaí</h1>
     <div class="store-meta">
-      <b>⭐ 5.0</b><span class="dot-sep"></span>
+      <b>⭐ 4.9</b><span class="dot-sep"></span>
       <span>Zona Sul de Natal</span><span class="dot-sep"></span>
       <span>via WhatsApp</span>
     </div>
+    <div class="open-badge"><span class="dot"></span>Aberto agora · fecha às 22h</div>
   </div>
 </div>
 
@@ -93,10 +94,15 @@
   </div>
   <div class="drawer-body" id="drawerBody"></div>
   <div class="drawer-foot">
+    <div class="address-block">
+      <label for="enderecoInput">📍 Endereço de entrega</label>
+      <input type="text" id="enderecoInput" placeholder="Rua, número, bairro..." oninput="onEnderecoChange()">
+    </div>
     <div class="sum-row"><span>Subtotal</span><span id="sumSubtotal">R$ 0,00</span></div>
+    <div class="sum-row"><span>Taxa de entrega</span><span id="sumFrete">R$ 8,00</span></div>
     <div class="sum-row total"><span>Total</span><span id="sumTotal">R$ 0,00</span></div>
     <button class="checkout-btn" id="checkoutBtn" onclick="finalizarPedido()" disabled>Finalizar pedido no WhatsApp</button>
-    <p class="checkout-hint">Entrega e forma de pagamento combinadas por lá 😉</p>
+    <p class="checkout-hint">Frete fixo de R$ 8,00 para toda a área de entrega 😉</p>
   </div>
 </div>
 
@@ -122,5 +128,4 @@
 
 </body>
 </html>
-
 
