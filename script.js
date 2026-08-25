@@ -75,7 +75,7 @@ const builders = {
 
 const cardapio = {
   combos: [
-    { id:"comboCasal", nome:"Combo Casal", desc:"2x 500ml + 2 adicionais à escolha.", preco:30.00, emoji:"💜", foto:"img/combocasal.jpg" },
+    { id:"comboCasal", nome:"Combo Casal", desc:"2x 350ml + 2 adicionais à escolha.", preco:30.00, emoji:"💜", foto:"img/combocasal.jpg" },
     { id:"comboFamilia", nome:"Combo Família", desc:"1L + 4 adicionais à escolha.", preco:35.00, emoji:"👨‍👩‍👧", foto: "img/combofamilia.jpg" },
   ],
 };
