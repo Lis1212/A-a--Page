@@ -35,13 +35,13 @@
     position:sticky; top:0; z-index:25;
     background:var(--branco);
   }
-  .topbar .icon-btn{
+ /* ----------  .topbar .icon-btn{
     width:34px; height:34px; border-radius:50%;
     background:var(--bege);
     display:flex; align-items:center; justify-content:center;
     font-size:1rem;
     flex-shrink:0;
-  }
+  }---- */
   .topbar .store-title{
     font-weight:800; font-size:0.95rem; color:var(--roxo-escuro);
     display:flex; align-items:center; gap:8px;
@@ -58,8 +58,10 @@
     margin:0 16px;
     border-radius:16px;
     background:
-      url('img/banner.svg') center center / cover no-repeat;
+      url('img/banner.svg') center center / cover no-repeat,
+      linear-gradient(135deg, var(--roxo-escuro), var(--roxo) 60%);
     position:relative;
+}
   }
   .banner-tag{
     position:absolute; bottom:10px; left:12px;
@@ -104,6 +106,8 @@
     font-size:0.74rem; font-weight:800; color:var(--verde);
   }
   .open-badge .dot{width:6px; height:6px; border-radius:50%; background:var(--verde);}
+  .open-badge.closed{color:#c0392b;}
+  .open-badge.closed .dot{background:#c0392b;}
 
   /* ---------- FAIXA DE INFO (bairros/contato) ---------- */
   .strip{
@@ -461,7 +465,7 @@
 
   #addedOverlay{z-index:50;}
 
-  /* ---------- RESPONSIVIDADE  ---------- */
+  /* ---------- RESPONSIVIDADE q!  ---------- */
   @media (min-width:600px){
     body{background:var(--bege);}
     .page{

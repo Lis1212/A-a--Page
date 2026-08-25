@@ -14,28 +14,31 @@
 <div class="page">
 
 <div class="topbar">
-  <div class="icon-btn">←</div>
+  <div class="icon-btn"></div>
   <div class="store-title"><img src="img/logo.jpg" alt="Click Açaí" class="topbar-logo">Click Açaí</div>
-  <div class="icon-btn">📞</div>
+  <div class="icon-btn"></div>
 </div>
 
-<div class="banner"><span class="banner-tag">🍇 Açaí fresquinho todo dia</span></div>
+<div class="banner"><span class="banner-tag"></span></div>
 
 <div class="store-card">
   <div class="store-logo"><img src="img/logo.jpg" alt="Click Açaí"></div>
   <div class="store-info">
     <h1>Click Açaí</h1>
     <div class="store-meta">
-      <b>⭐ 4.9</b><span class="dot-sep"></span>
+      <b>⭐ 5.0 - O melhor açaí da região</b><span class="dot-sep"></span>
       <span>Zona Sul de Natal</span><span class="dot-sep"></span>
       <span>via WhatsApp</span>
     </div>
-    <div class="open-badge"><span class="dot"></span>Aberto agora · fecha às 22h</div>
+    <div class="open-badge" id="openBadge">
+      <span class="dot" id="openDot"><</span>
+      <span id="openText">Verificando horário...</span>
+    </div>
   </div>
 </div>
 
 <div class="strip">
-  <span class="strip-chip">🕒 18h–22h</span>
+  <span class="strip-chip" id="horarioChip">🕒 18h–22h</span>
   <span class="strip-chip" onclick="toggleBairros()" style="cursor:pointer">📍 Área de entrega ▾</span>
   <span class="strip-chip">📞 (84) 92171-3033</span>
 </div>
