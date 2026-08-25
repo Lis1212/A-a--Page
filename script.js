@@ -68,7 +68,7 @@ const builders = {
     base: ["Açaí","Creme de Ninho","Creme de Tapioca","Creme de Cupuaçu","Creme de Amendoim","Creme de Ovomaltine"],
     recheioMax: 5,
     recheioExtra: 2.00,
-    recheio: ["Leite em pó","Kiwi","Chocopower","Farinha Láctea","Banana","Fini Beijo", "Canudo Wafer","Fini", "Bombom","Jujuba","Ovomaltine","Uva","Kitkat","Castanha","Abacaxi","Nutella","Granola","Morango","Doce de Leite","Paçoca","Gotas","Marshmallow","Coco","Confete","Leite Condensado","Chocoball","Bis","Cob. de Morango","Amendoim","Oreo","Cob. de Chocolate"],
+    recheio: ["Leite em pó","Kiwi","Chocopower","Farinha Láctea","Banana","Cob. de Fini Beijo", "Canudo Wafer","Fini", "Bombom","Jujuba","Ovomaltine","Uva","Kitkat","Castanha","Abacaxi","Nutella","Granola","Morango","Doce de Leite","Paçoca","Gotas","Marshmallow","Coco","Confete","Leite Condensado","Chocoball","Bis","Cob. de Morango","Amendoim","Oreo","Cob. de Chocolate"],
     cobertura: null,
   },
 };
