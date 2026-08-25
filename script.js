@@ -68,15 +68,15 @@ const builders = {
     base: ["Açaí","Creme de Ninho","Creme de Tapioca","Creme de Cupuaçu","Creme de Amendoim","Creme de Ovomaltine"],
     recheioMax: 5,
     recheioExtra: 2.00, // cada recheio além dos 5 primeiros custa R$2,00
-    recheio: ["Leite em pó","Kiwi","Chocopower","Farinha Láctea","Banana","Jujuba","Ovomaltine","Uva","Kitkat","Castanha","Abacaxi","Nutella","Granola","Morango","Doce de Leite","Paçoca","Gotas","Marshmallow","Coco","Confete","Leite Condensado","Chocoball","Bis","Cob. de Morango","Amendoim","Oreo","Cob. de Chocolate"],
+    recheio: ["Leite em pó","Kiwi","Chocopower","Farinha Láctea","Banana","Fini Beijo", "Canudo Wafer","Fini", "Bombom","Jujuba","Ovomaltine","Uva","Kitkat","Castanha","Abacaxi","Nutella","Granola","Morango","Doce de Leite","Paçoca","Gotas","Marshmallow","Coco","Confete","Leite Condensado","Chocoball","Bis","Cob. de Morango","Amendoim","Oreo","Cob. de Chocolate"],
     cobertura: null, // no Pote a cobertura já entra na lista de recheio
   },
 };
 
 const cardapio = {
   combos: [
-    { id:"comboCasal", nome:"Combo Casal", desc:"2x 500ml + 2 adicionais à escolha.", preco:30.00, emoji:"💜", foto:null },
-    { id:"comboFamilia", nome:"Combo Família", desc:"1L + 4 adicionais à escolha.", preco:35.00, emoji:"👨‍👩‍👧", foto:null },
+    { id:"comboCasal", nome:"Combo Casal", desc:"2x 500ml + 2 adicionais à escolha.", preco:30.00, emoji:"💜", foto:"img/combocasal.jpg" },
+    { id:"comboFamilia", nome:"Combo Família", desc:"1L + 4 adicionais à escolha.", preco:35.00, emoji:"👨‍👩‍👧", foto: "img/combofamilia.jpg" },
   ],
 };
 
