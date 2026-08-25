@@ -53,7 +53,7 @@ const builders = {
     baseMax: 2,
     base: ["Açaí","Creme de Ninho","Creme de Cupuaçu","Creme de Amendoim","Creme de Tapioca","Creme de Ovomaltine"],
     recheioMax: 3,
-    recheioExtra: 0, // sem opção de recheio extra pago no Copo
+    recheioExtra: 0,
     recheio: ["Leite em pó","Kiwi","Chocopower","Fini","Canudo Wafer","Bombom","Jujuba","Farinha Láctea","Banana","Kitkat","Abacaxi","Doce de Leite","Cob. de Morango","Cob. de Chocolate","Ovomaltine","Uva","Nutella","Morango","Marshmallow","Leite Condensado","Castanha","Granola","Gotas","Coco","Confete","Chocoball","Bis","Oreo"],
     cobertura: ["Leite Condensado","Nutella","Doce de Leite","Cob. de Morango","Cob. de Chocolate","Cob. Fini Beijos"],
   },
@@ -67,9 +67,9 @@ const builders = {
     baseMax: 2,
     base: ["Açaí","Creme de Ninho","Creme de Tapioca","Creme de Cupuaçu","Creme de Amendoim","Creme de Ovomaltine"],
     recheioMax: 5,
-    recheioExtra: 2.00, // cada recheio além dos 5 primeiros custa R$2,00
+    recheioExtra: 2.00,
     recheio: ["Leite em pó","Kiwi","Chocopower","Farinha Láctea","Banana","Fini Beijo", "Canudo Wafer","Fini", "Bombom","Jujuba","Ovomaltine","Uva","Kitkat","Castanha","Abacaxi","Nutella","Granola","Morango","Doce de Leite","Paçoca","Gotas","Marshmallow","Coco","Confete","Leite Condensado","Chocoball","Bis","Cob. de Morango","Amendoim","Oreo","Cob. de Chocolate"],
-    cobertura: null, // no Pote a cobertura já entra na lista de recheio
+    cobertura: null,
   },
 };
 
@@ -88,7 +88,6 @@ function fmt(v){ return v.toLocaleString('pt-BR', {style:'currency', currency:'B
 function findItem(id){ for(const c in cardapio){ const f = cardapio[c].find(i=>i.id===id); if(f) return f; } }
 
 function renderCardapio(){
-  // Combos continuam como lista simples
   const container = document.getElementById('list-combos');
   container.innerHTML = cardapio.combos.map(item => `
     <div class="item-row" onclick="addItem('${item.id}')">
@@ -112,7 +111,6 @@ function renderCardapio(){
   renderBuilder('pote');
 }
 
-// ---------- BUILDER: monte seu açaí (Copo / Pote) em 2 etapas ----------
 function renderBuilder(bid){
   const cfg = builders[bid];
   const el = document.getElementById('builder-' + bid);
@@ -187,7 +185,6 @@ function renderBuilder(bid){
   updateResumo(bid);
 }
 
-// etapa 1 -> etapa 2: usuário escolheu o tamanho
 function selectTamanho(bid, tamId){
   const cfg = builders[bid];
   const tam = cfg.tamanhos.find(t => t.id === tamId);
@@ -202,14 +199,12 @@ function selectTamanho(bid, tamId){
   document.getElementById(bid).scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-// volta da etapa 2 pra etapa 1
 function voltarTamanho(bid){
   const root = document.getElementById('builder-' + bid);
   root.querySelector('.step-adicionais').style.display = 'none';
   root.querySelector('.step-tamanho').style.display = 'block';
 }
 
-// trava seleção de base (ou recheio sem extra) no máximo permitido
 function onCheckLimit(input, bid, group, max){
   const checked = document.querySelectorAll(`[data-group="${bid}-${group}"]:checked`);
   if(checked.length > max){
@@ -217,8 +212,6 @@ function onCheckLimit(input, bid, group, max){
   }
 }
 
-// recheio: trava se não tiver preço de extra; senão só atualiza resumo/preço
-// (correção: recebe o elemento como parâmetro em vez de depender do "event" global)
 function onRecheioChange(bid, el){
   const cfg = builders[bid];
   if(!cfg.recheioExtra){
@@ -250,7 +243,6 @@ function addBuilderToCart(bid){
   const recheio = [...document.querySelectorAll(`[data-group="${bid}-recheio"]:checked`)].map(i => i.value);
   const cobEl = cfg.cobertura ? document.querySelector(`input[name="${bid}-cob"]:checked`) : null;
 
-  // validações (correção #5)
   if(base.length === 0){ alert('Escolha pelo menos 1 base'); return; }
   if(recheio.length === 0){ alert('Escolha pelo menos 1 recheio'); return; }
   if(cfg.cobertura && !cobEl){ alert('Escolha uma cobertura'); return; }
@@ -263,7 +255,6 @@ function addBuilderToCart(bid){
   if(recheio.length) partes.push('Recheio: ' + recheio.join(', '));
   if(cobEl) partes.push('Cobertura: ' + cobEl.value);
 
-  // correção #1: uid baseado no conteúdo da montagem, pra combinar pedidos idênticos
   const uid = [
     bid, tam.id,
     base.slice().sort().join('+'),
@@ -282,19 +273,15 @@ function addBuilderToCart(bid){
         desc: partes.join(' · '),
       },
       qtd: 1,
-      // (correção #2: removidas as props "custom" e "descLonga", que não eram usadas em lugar nenhum)
     };
   }
 
   atualizarTudo();
   openAddedModal(uid);
 
-  // reseta o builder pro próximo pedido (volta pra etapa 1)
   delete tamanhoSelecionado[bid];
   renderBuilder(bid);
 }
-
-// ---------- ITENS SIMPLES (combos) ----------
 
 function addItem(id){
   const item = findItem(id);
@@ -389,7 +376,6 @@ function atualizarCheckoutBtn(){
 function openDrawer(){ document.getElementById('drawer').classList.add('show'); document.getElementById('overlay').classList.add('show'); }
 function closeDrawer(){ document.getElementById('drawer').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }
 
-// ---------- MODAL "ITEM ADICIONADO" ----------
 let addedModalId = null;
 
 function openAddedModal(id){
@@ -408,9 +394,6 @@ function closeAddedModal(){
   addedModalId = null;
 }
 
-// correção do bug: guarda o id numa variável local ANTES de chamar closeAddedModal(),
-// porque closeAddedModal() zera addedModalId — se não guardar, refreshRowControl
-// recebia "null" e o botão +/- do item ficava travado.
 function mudarQtdModal(delta){
   const id = addedModalId;
   if(!id || !carrinho[id]) return;
@@ -432,10 +415,14 @@ function irParaCarrinho(){
   openDrawer();
 }
 
-// correção #4: valida horário de funcionamento antes de finalizar
+// ---- CORRIGIDO: usa o mesmo horário/fuso do updateStatusLoja, em vez das
+// variáveis HORA_ABRE/HORA_FECHA que estavam comentadas e quebravam a função ----
 function dentroDoHorario(){
-  const hora = new Date().getHours();
-  return hora >= HORA_ABRE && hora < HORA_FECHA;
+  const agora = getAgoraNaLoja();
+  const dia = agora.getDay();
+  const horaDecimal = agora.getHours() + agora.getMinutes() / 60;
+  const cfg = getHorarioDoDia(dia);
+  return horaDecimal >= cfg.abre && horaDecimal < cfg.fecha;
 }
 
 function finalizarPedido(){
@@ -443,7 +430,9 @@ function finalizarPedido(){
   if(linhas.length === 0) return;
 
   if(!dentroDoHorario()){
-    alert(`Estamos fechados agora 😔\nFuncionamos das ${HORA_ABRE}h às ${HORA_FECHA}h.`);
+    const agora = getAgoraNaLoja();
+    const cfg = getHorarioDoDia(agora.getDay());
+    alert(`Estamos fechados agora 😔\nFuncionamos das ${formatHora(cfg.abre)} às ${formatHora(cfg.fecha)}.`);
     return;
   }
 
@@ -477,4 +466,4 @@ document.querySelectorAll('.cat-pill').forEach(pill=>{
 renderCardapio();
 renderFab();
 updateStatusLoja();
-setInterval(updateStatusLoja, 60 * 1000); // atualiza sozinho a cada minuto
+setInterval(updateStatusLoja, 60 * 1000);
